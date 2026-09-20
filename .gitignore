@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables / secrets
+.env
+.env.*
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Experiment outputs
+results/*
+!results/.gitkeep
+
+# Logs
+*.log
+
+# Model checkpoints / large artifacts
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Python distribution
+*.egg-info/
+dist/
+build/
