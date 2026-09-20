@@ -41,23 +41,25 @@ The planned workflow is:
 10. Evaluate the resulting capability-discovery performance.
 
 ## Project Structure
+
+```text
 active-probing-embodied-capability-discovery/
-|
-|-- README.md
-|-- requirements.txt
-|-- .gitignore
-|
-|-- src/
-|   `-- Core implementation
-|
-|-- experiments/
-|   `-- Experimental scripts
-|
-|-- configs/
-|   `-- Experiment configurations
-|
-|-- results/
-|   `-- Experimental results
-|
-`-- docs/
-    `-- Project documentation and literature notes
+│
+├── README.md
+├── requirements.txt
+├── .gitignore
+│
+├── src/
+│   └── Core implementation
+│
+├── experiments/
+│   └── Experimental scripts
+│
+├── configs/
+│   └── Experiment configurations
+│
+├── results/
+│   └── Experimental results
+│
+└── docs/
+    └── Project documentation and literature notes
