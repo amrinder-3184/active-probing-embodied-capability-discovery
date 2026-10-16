@@ -1,0 +1,17 @@
+# Damage hypotheses. Each one changes the simulator for a single joint.
+# healthy is the joint with no changes. Each joint has exactly one of these states.
+hypotheses:
+  healthy: {}
+  locked: {locked: true}                  # the motor cannot move the joint
+  weak_motor: {torque_scale: 0.4}         # only 40% of the nominal torque is available
+  missing_sensor: {sensor_valid: false}   # no encoder reading, so the joint is never moved
+  broken_link: {stiffness_scale: 0.1}     # the position loop is much softer
+
+# Prior probability of each state. It is the starting belief for every joint, and it is also
+# how the simulated ground truth is drawn. The probabilities must sum to 1.
+prior:
+  healthy: 0.8
+  locked: 0.05
+  weak_motor: 0.05
+  missing_sensor: 0.05
+  broken_link: 0.05

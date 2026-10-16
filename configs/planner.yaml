@@ -1,0 +1,44 @@
+# Planner settings. All methods share the gating, the budget and the safety veto.
+# Only the planner uses the utility terms below.
+
+# utility(probe) = expected information gain (bits)
+#                  - risk_weight * expected risk
+#                  - energy_weight * expected energy / energy_scale_j
+risk_weight: 1.0
+energy_weight: 0.5
+energy_scale_j: 10.0
+
+# Weight of each violation in the risk score. A platform only produces the violations it can
+# have (the arm never falls).
+risk_weights:
+  fall: 1.0
+  overload: 0.5
+  joint_limit: 0.5
+
+# Safety veto, applied to every method. A probe is never run if its chance of causing any
+# violation, under the current belief, is above this.
+risk_cap: 0.2
+
+# Utility sets the order of probes. It does not skip a tier: a tier is only concluded by a probe
+# of that tier, so every allowed tier still needs its test. The episode stops when no allowed,
+# safe probe is left, or when the budget runs out.
+
+# A tier is concluded as pass when the belief that the joint reaches it is at least
+# pass_confidence, and as fail when it is at most 1 - pass_confidence. This needs a probe of
+# that tier first.
+pass_confidence: 0.95
+
+# After this many probes of one tier without a conclusion, the tier is marked unknown.
+max_repeats: 2
+
+# Smallest pass/fail probability any hypothesis can be given. It stops one wrong model
+# prediction from ruling a hypothesis out for good.
+likelihood_floor: 0.01
+
+# chain: a tier is tested on a joint only after the joints below it in its chain pass that tier.
+# robot: a tier is tested on any joint only after every other joint passes the tier below (the
+#        whole-robot baseline for RQ3).
+gating: chain
+
+# Maximum number of probes per episode.
+budget: 40

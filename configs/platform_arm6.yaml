@@ -1,0 +1,93 @@
+# Platform adapter: a simulated 6-DOF arm on a fixed base.
+#
+# Units: angles in degrees (limits, probe sizes), torque in N*m, inertia in kg*m^2.
+# The gains and masses are hand-picked to look like a plausible small arm.
+# They are not identified from hardware. See docs/design-decisions.md.
+
+name: arm6
+
+# One kinematic chain. Joints are listed from the base outwards. A joint's "proximal" joints
+# are the ones before it in its chain, i.e. closer to the base. Gating uses that order.
+chains:
+  arm: [base, shoulder, elbow, wrist_1, wrist_2, wrist_3]
+
+joints:
+  # gravity_nm: torque the joint must hold in the T3 probe.
+  # The base turns about a vertical axis, so it carries no weight.
+  base:
+    chain: arm
+    tau_max_nm: 60
+    kp: 1500
+    kd: 50
+    inertia: 0.5
+    gravity_nm: 0.0
+    limits_deg: [-170, 170]
+  shoulder:
+    chain: arm
+    tau_max_nm: 60
+    kp: 1500
+    kd: 100
+    inertia: 2.0
+    gravity_nm: 25.0
+    limits_deg: [-90, 90]
+  elbow:
+    chain: arm
+    tau_max_nm: 40
+    kp: 1000
+    kd: 60
+    inertia: 1.0
+    gravity_nm: 12.0
+    limits_deg: [-120, 120]
+  wrist_1:
+    chain: arm
+    tau_max_nm: 20
+    kp: 600
+    kd: 20
+    inertia: 0.2
+    gravity_nm: 1.5
+    limits_deg: [-160, 160]
+  wrist_2:
+    chain: arm
+    tau_max_nm: 15
+    kp: 400
+    kd: 12
+    inertia: 0.1
+    gravity_nm: 0.8
+    limits_deg: [-160, 160]
+  wrist_3:
+    chain: arm
+    tau_max_nm: 10
+    kp: 300
+    kd: 8
+    inertia: 0.05
+    gravity_nm: 0.2
+    limits_deg: [-180, 180]
+
+# The probe that runs for each tier. Gentle on purpose: small motions, and a torque limit.
+# A tier with no entry here is not used on this platform (T4 for an arm).
+probes:
+  T0: {kind: small_step, step_deg: 0.5, duration_s: 0.5}
+  T1: {kind: smooth_move, move_deg: 5.0, move_s: 1.0, duration_s: 2.0}
+  T2: {kind: planned_path, amplitude_deg: 20.0, duration_s: 4.0}
+  # budget_fraction: this skill's overload budget. The hold is 70% of rated torque, not 50%,
+  # because at 50% a nominal shoulder aborts most healthy runs under +/-10% randomisation
+  # (see docs/stage1-plan.md, section 6). Still 30% below rated torque. Needs TA confirmation.
+  T3: {kind: hold_under_load, duration_s: 3.0, sag_window_s: 1.0, budget_fraction: 0.7}
+
+# Which assessor judges each tier. `scripted` runs the PD probe. `learned` runs the trained
+# policy for that (joint, tier) from results/policies. T0 stays scripted: it is a diagnostic, and it
+# gates the learned skills.
+assessment:
+  T0: scripted
+  T1: learned
+  T2: learned
+  T3: learned
+
+safety:
+  # A probe aborts if the controller asks for more than this fraction of tau_max (the overload
+  # risk), or if the joint leaves its limits (the joint_limit risk).
+  probe_torque_limit_fraction: 0.5
+  # Converts torque to motor current for the over-current check: current = torque / this.
+  torque_constant_nm_per_a: 5.0
+  # Energy proxy, in J: integral of |torque * velocity| + heat_coeff * torque^2 over time.
+  heat_coeff: 0.002

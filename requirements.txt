@@ -1,0 +1,12 @@
+# Direct dependencies, pinned to the versions the test suite and the stage-1 results were
+# regenerated with (docs/testing.md, section 6). Pinned for reproducibility, not because newer
+# versions are known to break: numpy changes can move the last digit of trained gains.
+#
+# Tested environment: Windows 10 (19045), CPython 3.11.9, x86-64, pip 24.0.
+# numpy 2.4.x requires Python >= 3.11.
+#
+# Transitive versions in that environment (installed by pytest, not pinned here):
+#   colorama 0.4.6, iniconfig 2.3.1, packaging 26.3, pluggy 1.7.0, Pygments 2.21.0
+numpy==2.4.6
+PyYAML==6.0.3
+pytest==9.1.1

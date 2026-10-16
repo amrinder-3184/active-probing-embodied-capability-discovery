@@ -1,0 +1,32 @@
+# Tier definitions. These say what "pass" means. They do not say how a robot is probed:
+# each platform (configs/platform_*.yaml) names the probe that runs for each tier.
+#
+# Each check reads one metric from a probe run.
+#   direction: min  -> the reading must be >= threshold
+#   direction: max  -> the reading must be <= threshold
+#   noise_sigma:    standard deviation of the sensor noise on that reading.
+#                   The same value is used in the Bayesian likelihood.
+#
+# Thresholds are hand-picked starting values, not measured. Change them here, not in code.
+# T4 (whole-body posture) is not defined yet. It needs a legged platform.
+
+tiers:
+  T0:
+    name: Alive
+    checks:
+      - {metric: sensor_valid, direction: min, threshold: 1.0, noise_sigma: 0.0}
+      - {metric: response_ratio, direction: min, threshold: 0.5, noise_sigma: 0.05}
+      - {metric: peak_current_a, direction: max, threshold: 6.0, noise_sigma: 0.1}
+  T1:
+    name: Single joint
+    checks:
+      - {metric: final_error_deg, direction: max, threshold: 1.0, noise_sigma: 0.05}
+  T2:
+    name: Coordinated limb
+    checks:
+      - {metric: rms_error_deg, direction: max, threshold: 2.0, noise_sigma: 0.05}
+  T3:
+    name: Loaded limb
+    checks:
+      - {metric: sag_deg, direction: max, threshold: 1.5, noise_sigma: 0.05}
+      - {metric: peak_torque_fraction, direction: max, threshold: 0.8, noise_sigma: 0.01}

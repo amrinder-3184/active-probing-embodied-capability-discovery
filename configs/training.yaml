@@ -1,0 +1,38 @@
+# Settings for learned skills (stage 1). See docs/stage1-plan.md, sections 3.4 to 3.6.
+# Units: angles in degrees unless the key says rad, torque in N*m.
+
+policy:                       # hard clamps on the learned gains, relative to the nominal PD gains
+  kp_multiplier: [0.5, 1.0]   # stiffness may be softened, never raised above nominal: a stiffer policy
+                              # would hide a softer joint (see docs/stage1-plan.md, section 6)
+  kd_multiplier: [0.5, 4.0]
+  initial_multiplier: 1.0     # start at the nominal PD controller
+
+evolution:                    # evolution strategies over the two gain multipliers
+  population: 32              # candidates per generation (perturbed in antithetic pairs)
+  instances: 8                # randomised healthy joints each candidate is scored on (4 was too noisy: aborts are rare events)
+  generations: 40
+  sigma: 0.1                  # perturbation size in multiplier units
+  learning_rate: 0.1
+  effort_weight: 0.05         # penalty for demands near the probe budget
+  abort_penalty: 10.0         # reward for a run that is aborted by a safety limit
+
+randomisation:
+  spread: 0.1                 # +/- fraction on tau_max, inertia, gravity and stiffness, per rollout
+
+observation_noise:            # noise on what the controller sees, not on the physics
+  angle_deg: 0.05
+  speed_deg_s: 0.5
+
+gate:                         # healthy-joint check before a policy is trusted
+  episodes: 100
+  wilson_z: 1.96
+  min_lower_bound: 0.85       # Wilson 95% lower bound on the healthy success rate
+
+assessment:
+  rollouts: 50                # rollouts per (joint, tier, hypothesis) in the model table
+  identifiability_gap: 0.5    # two hypotheses are separable if some skill differs by at least this
+
+seeds:                        # independent streams, so training, gating and the model table never overlap
+  training: 1000
+  gate: 2000
+  table: 3000
